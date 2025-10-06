@@ -1,0 +1,57 @@
+﻿# .NET build artifacts
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code workspace settings
+.vscode/
+
+# NuGet packages
+*.nupkg
+# NuGet package restore
+packages/
+# Dotnet restore
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# StyleCop
+StyleCopReport.xml
+
+# Files built by Visual Studio
+*.dbmdl
+*.pdb
+*.cache
+*.log
+
+# Others
+*.vspscc
+*.vssscc
+*.tmp
+*.bak
+*.swp
+*.sln.ide
+
+# Rider
+.idea/
+*.sln.iml
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Publish output
+publish/
+/ToggleButtonAutomation/.vs
+/.vs
