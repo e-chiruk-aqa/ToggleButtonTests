@@ -1,0 +1,19 @@
+﻿Files:
+Screens/Screen/RootPage/Toggle Button 2D/ToggleButtonBackground
+Screens/Screen/RootPage/Toggle Button 2D/Text Block 2D
+Screens/Screen/RootPage/Toggle Button 2D/Lock
+Screens/Screen/RootPage/Toggle Button 2D
+Screens/Screen/<ResourceDictionaryInNode>
+Screens/Screen/RootPage
+Screens/Screen
+PropertyTypeLibrary/TAG_PROPERTY_TYPE_Transparent
+Page Transitions/Default Transitions
+Resource Files/Images/Lock.png
+Resource Files/Images/ToggleButtonBackground.png
+Resource Files/Images/Unlock.png
+Textures/Lock
+Textures/ToggleButtonBackground
+Textures/Unlock
+Styles/Text Block 2D Style
+State Managers/Toggle Button 2D State Manager
+/toggle_button
