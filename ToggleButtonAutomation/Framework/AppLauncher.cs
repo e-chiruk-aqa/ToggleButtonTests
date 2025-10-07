@@ -46,7 +46,7 @@ namespace Framework
                     Process.WaitForExit(3000);
                 }
             }
-            catch { /* ignore */ }
+            catch { }
         }
     }
 }

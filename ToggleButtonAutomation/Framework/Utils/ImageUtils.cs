@@ -21,7 +21,7 @@ namespace Framework.Utils
             using var mb = ToMagick(b);
             if (ma.Width != mb.Width || ma.Height != mb.Height) ma.Resize(mb.Width, mb.Height);
             double diff = ma.Compare(mb, ErrorMetric.StructuralSimilarity, Channels.All);
-            return 1.0 - diff; // 1 = одинаково
+            return 1.0 - diff;
         }
 
         public static double CompareToBaseline(Bitmap actualRoi, string baselinePath, string diffOutPath)

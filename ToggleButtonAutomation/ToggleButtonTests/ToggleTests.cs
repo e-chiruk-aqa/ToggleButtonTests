@@ -1,7 +1,7 @@
 ﻿using Framework.Extensions;
 using Framework.Utils;
 using ToggleButtonTests.Pages;
-using ToggleButtonTests.Utils; // TestDataUtil
+using ToggleButtonTests.Utils;
 
 namespace ToggleButtonTests
 {
@@ -17,16 +17,13 @@ namespace ToggleButtonTests
             var win = StartAppAndGetWindow(name, path);
             var page = new MainWindow(win);
 
-            // фиксируем окно для стабильных скринов
             win.SetForegroundSafe();
             win.MoveTo(100, 100);
             win.ResizeTo(900, 650);
 
-            // ROI в окне → экран
             var roiInWin = page.CenterRoiInWindow();
             var roiScreen = page.MakeRoiInScreen(roiInWin);
 
-            // снимки
             var before = ScreenUtils.CaptureRoi(roiScreen); AddShot("state0", before);
             page.ClickCenter();
             page.MoveTo(new Point());
@@ -35,11 +32,9 @@ namespace ToggleButtonTests
             page.MoveTo(new Point());
             var after2 = ScreenUtils.CaptureRoi(roiScreen); AddShot("state2", after2);
 
-            // метрики
             double ssim1 = ImageUtils.Ssim(before, after1);
             double ssim2 = ImageUtils.Ssim(before, after2);
 
-            // сравнение с эталонами
             var baseDir = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData");
             double b0 = ImageUtils.CompareToBaseline(before, Path.Combine(baseDir, "state0.png"),
                                                      Path.Combine(Path.Combine("reports", name), "diff_state0.png"));

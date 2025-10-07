@@ -6,7 +6,6 @@ namespace ToggleButtonTests.Utils
     {
         public static IEnumerable<TestCaseData> Binaries()
         {
-            // читаем appsettings.json рядом с тестовым dll
             var baseDir = TestContext.CurrentContext.TestDirectory;
             var cfg = new ConfigurationBuilder()
                 .SetBasePath(baseDir)

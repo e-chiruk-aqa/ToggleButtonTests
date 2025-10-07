@@ -12,9 +12,7 @@ namespace ToggleButtonTests
         protected TimeSpan LaunchTimeout, SmartScreenTimeout;
         protected Bin[] Bins = Array.Empty<Bin>();
 
-        // run-level
         protected string RunDir = "";
-        // case-level
         private string _caseName = "";
         private readonly List<(string label, Bitmap bmp)> _shots = new();
 

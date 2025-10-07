@@ -28,7 +28,6 @@ namespace Framework.Utils
         {
             var wb = ToRect(window.BoundingRectangle);
 
-            // DPI и округление
             int x = (int)Math.Round((decimal)(wb.X + roiInWindow.X));
             int y = (int)Math.Round((decimal)(wb.Y + roiInWindow.Y));
             int w = (int)Math.Round((decimal)roiInWindow.Width);
