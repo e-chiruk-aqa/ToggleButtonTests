@@ -182,6 +182,6 @@ GitHub Actions workflow: `.github/workflows/release-pipeline.yaml`
 
 ---
 
-**Author:** Yauheni Chiruk  
+**Author:** Yauheni Chyruk  
 **Tech Stack:** .NET 8, FlaUI, Magick.NET, Serilog  
 **License:** Internal Assessment Project
