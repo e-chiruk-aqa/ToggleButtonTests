@@ -27,6 +27,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Allow PS scripts
+        run: |
+          Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
+          Get-ExecutionPolicy -List
+
       - name: Set DOTNET_INSTALL_DIR (user scope)
         run: |
           $dir = "$env:USERPROFILE\.dotnet"
@@ -55,6 +60,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Allow PS scripts
+        run: |
+          Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
+          Get-ExecutionPolicy -List
+
       - name: Set DOTNET_INSTALL_DIR (user scope)
         run: |
           $dir = "$env:USERPROFILE\.dotnet"
@@ -67,7 +77,6 @@ jobs:
           dotnet-version: 8.0.x
 
       - run: dotnet --info
-
       - run: dotnet restore ./ToggleButtonAutomation/ToggleButtonAutomation.sln
       - run: dotnet build   ./ToggleButtonAutomation/ToggleButtonAutomation.sln -c $env:CONFIGURATION --no-restore
 
