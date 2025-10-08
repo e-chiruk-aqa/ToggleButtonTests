@@ -24,6 +24,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set DOTNET_INSTALL_DIR (user scope)
+        shell: pwsh
+        run: |
+          $dir = "$env:USERPROFILE\.dotnet"
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          echo "DOTNET_INSTALL_DIR=$dir" >> $env:GITHUB_ENV
+          echo "$dir" >> $env:GITHUB_PATH
+
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
@@ -49,9 +57,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set DOTNET_INSTALL_DIR (user scope)
+        shell: pwsh
+        run: |
+          $dir = "$env:USERPROFILE\.dotnet"
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          echo "DOTNET_INSTALL_DIR=$dir" >> $env:GITHUB_ENV
+          echo "$dir" >> $env:GITHUB_PATH
+
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+
+      - name: dotnet --info
+        run: dotnet --info
 
       - name: Restore
         run: dotnet restore ./ToggleButtonAutomation/ToggleButtonAutomation.sln
