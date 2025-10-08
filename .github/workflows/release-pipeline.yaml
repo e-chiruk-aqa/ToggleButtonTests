@@ -42,7 +42,7 @@ jobs:
 
   ui_tests:
     name: UI tests (self-hosted Windows with desktop)
-    runs-on: [ self-hosted, windows, x64, ui ]
+    runs-on: [ self-hosted, Windows, X64 ]
     timeout-minutes: 30
     env:
       REGEN_BASELINES: ${{ inputs.regen_baselines && '1' || '0' }}
