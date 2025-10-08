@@ -1,0 +1,77 @@
+name: .NET UI Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      regen_baselines:
+        description: "Set REGEN_BASELINES=1"
+        type: boolean
+        default: false
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  CONFIGURATION: Release
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj','**/packages.lock.json') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore ./ToggleButtonAutomation/ToggleButtonAutomation.sln
+
+      - name: Build
+        run: dotnet build ./ToggleButtonAutomation/ToggleButtonAutomation.sln -c $env:CONFIGURATION --no-restore
+
+  ui_tests:
+    name: UI tests (self-hosted Windows with desktop)
+    runs-on: [ self-hosted, windows, x64, ui ]
+    timeout-minutes: 30
+    env:
+      REGEN_BASELINES: ${{ inputs.regen_baselines && '1' || '0' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore ./ToggleButtonAutomation/ToggleButtonAutomation.sln
+
+      - name: Build
+        run: dotnet build ./ToggleButtonAutomation/ToggleButtonAutomation.sln -c $env:CONFIGURATION --no-restore
+
+      - name: Run UI tests
+        shell: pwsh
+        run: |
+          Write-Host "REGEN_BASELINES=$env:REGEN_BASELINES"
+          dotnet test ./ToggleButtonAutomation/ToggleButtonTests/ToggleButtonTests.csproj `
+            -c $env:CONFIGURATION --no-build `
+            --logger "trx;LogFileName=ui-tests.trx"
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-reports
+          path: |
+            ToggleButtonAutomation/**/reports/**
+            ToggleButtonAutomation/**/TestResults/*.trx

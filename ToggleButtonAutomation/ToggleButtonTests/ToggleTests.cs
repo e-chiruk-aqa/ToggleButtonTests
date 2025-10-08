@@ -9,7 +9,6 @@ namespace ToggleButtonTests
     public class ToggleTests : BaseTest
     {
         private const double SameThreshold = 0.98;
-        private const int PauseMs = 500;
 
         [TestCaseSource(typeof(TestDataUtil), nameof(TestDataUtil.Binaries))]
         public void Toggle_changes_state(string name, string path)
