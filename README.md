@@ -1,57 +1,187 @@
-**Test Automation - Job Assignment**
 
-Welcome to the Test Automation assignment for the Test Automation Lead role. This assignment assesses your ability to develop a simple yet robust test framework and related tests to validate the functionality of similar executable files.
+# 🧪 ToggleButtonAutomation
 
-**Assignment Overview**
+### Automated UI Testing for Windows Desktop Apps
 
-In this assignment, you are provided with three folders, each containing an executable file named `Toggle button.exe`. These files are nearly identical, with minor behavior differences:
+This repository implements a lightweight test automation framework to validate the behavior of the provided `Toggle button.exe` desktop applications.
 
-- **ToggleButton** - This file is expected to pass all test cases.
-- **ToggleButton_NoStart** - This file is expected to fail by not launching correctly.
-- **ToggleButton_WrongBehavior** - This file is expected to fail due to incorrect functional behavior.
+---
 
-**The Goal** is to create 
-- a test framework that enables testing of the given executables. Hint: Test framework should contain reusable pieces that enables implementation of future tests as well.
-- create set of tests which actually verify the behavior of our input executables. 
+## 📋 Assignment Overview
 
-**Instructions**
-1. Build a test framework to validate the behavior of each `Toggle button.exe` file. You may choose any technologies or frameworks you find best suited for the task, with the exception of Capture and Replay tools. Our focus is on assessing your approach to creating lightweight, reusable, and reliable test code, so please prioritize clear, maintainable solutions over automation shortcuts. 
-2. Test cases:
-    - Click on the toggle button and verify the changes of the state as expected.
-3. Error Handling: Ensure that the framework provides clear failure messages for non-passing cases, indicating the cause of failure (e.g., “Application did not launch” or “Toggle behavior is incorrect”).
-4. Execution & Logging
-    - Run the tests on all three executables.
-    - Record outputs for each test case.
-    - Include error logs and failure descriptions for non-passing executables.
-5. Deliverables
-    - Test Code: Submit the code for the test framework and the tests, structured and documented, making it easy to understand and execute.
-    - Execution Instructions: Provide a guide on how to run the test framework, including any dependencies or specific setup required.
-    - Test Report: Include a report detailing the results of running the test framework on each executable, with logs for both passing and failing cases.
-    - Failure Messages: Ensure all failure cases include an informative message explaining the issue.
-    - Environment Setup
-        - Prerequisites.
-        - Any required frameworks.
-        - Environment configurations.
-    - Instructions for running the tests
-        - Clone the repository if applicable.
-        - Install dependencies (commands for dependency installation).
-        - Run the tests (command to run tests).
-        - Evaluation Criteria
+You were given three versions of the same app (`Toggle button.exe`), each behaving slightly differently:
 
-**Notes**
+| Folder | Expected Result | Description |
+|:--------|:----------------|:-------------|
+| **ToggleButton** | ✅ Pass | Application launches and toggles correctly |
+| **ToggleButton_NoStart** | ❌ Fail | Application fails to launch |
+| **ToggleButton_WrongBehavior** | ❌ Fail | Application launches but toggle logic is incorrect |
 
-When executing `Toggle button.exe` files, you may encounter a "Windows protected your PC" warning due to the files not being signed. This may introduce test flakiness, as different test environments or host setups might display this prompt inconsistently.
+The goal is to:
+1. Create a **reusable test framework** for future desktop app testing.
+2. Implement **automated tests** validating correct toggle behavior.
+3. Produce **clear, informative logs** for both passing and failing cases.
 
-To manually bypass this prompt:
+---
 
-Click on “More info.”
-Select “Run anyway” to proceed with the application.
-For reliable test outcomes, please ensure that your test framework or environment can handle such prompts consistently to prevent flakiness across different setups.
+## 🧠 Framework Design
 
+### Key Concepts
+- **UI automation:** Interaction through [FlaUI](https://github.com/FlaUI/FlaUI) (UIA3).
+- **Image validation:** Screenshots of the toggle area (ROI) are compared using **SSIM** to measure similarity.
+- **No baseline images:** Comparison is performed dynamically between captured states within the same test run.
+- **SmartScreen & Firewall dialogs:** Automatically bypassed to prevent blocking the automation flow.
+- **Serilog reporting:** Logs key steps, SSIM values, and errors for every executable.
 
-**You will be evaluated based on:**
+---
 
-**Correctness:** The test framework and the tests meets the assignment’s objectives.
-**Code Quality:** The test framework and the tests should be well-structured, readable, and maintainable.
-**Error Reporting:** Failure cases should include clear, informative messages.
-**Documentation:** Instructions for running the tests should be clear and concise.
+## 🧩 Project Structure
+
+```
+ToggleButtonAutomation/
+│
+├── .github/
+│   └── workflows/
+│       └── release-pipeline.yaml         # GitHub Actions CI/CD
+│
+├── Framework/
+│   ├── Extensions/
+│   │   └── WindowExtensions.cs          # Helper extensions for window handling
+│   ├── Utils/
+│   │   ├── FirewallRules.cs             # Adds firewall allow rules for app
+│   │   ├── ImageUtils.cs                # SSIM calculation and diff creation
+│   │   ├── ScreenUtils.cs               # ROI and screenshot handling
+│   │   └── SmartScreenBypass.cs         # Handles SmartScreen “Run anyway” dialog
+│   ├── AppLauncher.cs                   # Launch and monitor desktop process
+│   ├── UiSession.cs                     # Attach to main window, manage session
+│   └── Framework.csproj
+│
+├── ToggleButtonTests/
+│   ├── Pages/
+│   │   └── MainWindow.cs                # Defines ROI and UI actions
+│   ├── Utils/
+│   │   └── TestDataUtil.cs              # Provides paths to test executables
+│   ├── appsettings.json                 # Configuration: timeouts, binaries
+│   ├── BaseTest.cs                      # Common setup, logging, teardown
+│   ├── ToggleTests.cs                   # Main visual toggle verification test
+│   └── ToggleButtonTests.csproj
+│
+├── ToggleButtonAutomation.sln
+│
+├── ToggleButton/                        # Expected to pass
+├── ToggleButton_NoStart/                # Fails to start
+└── ToggleButton_WrongBehavior/          # Fails toggle validation
+```
+
+---
+
+## ⚙️ Test Logic
+
+The test verifies the **visual change** of the toggle button when clicked:
+
+1. Launch the target `.exe`.
+2. Capture a screenshot of the **toggle region** (ROI).
+3. Perform the first click → capture the new ROI.
+4. Perform the second click → capture the ROI again.
+5. Compare screenshots using **SSIM (Structural Similarity Index)**:
+   - SSIM < 0.98 after 1st click → toggle **did not change** visually.
+   - SSIM ≥ 0.98 after 2nd click → toggle **did not return** to initial state.
+6. Log all SSIM values and screenshots for review.
+
+> No baseline files are used — all comparisons happen dynamically during test execution.
+
+---
+
+## 🧾 Output
+
+Each run generates a timestamped folder under `./reports/`:
+
+```
+reports/run-YYYYMMDD-HHMMSS/<AppName>/
+  ├── 00_state0.png     # Initial
+  ├── 01_state1.png     # After 1st click
+  ├── 02_state2.png     # After 2nd click
+  ├── diff_*.png        # Visual diffs
+  └── report.txt        # Detailed log
+```
+
+Logs include:
+- App launch details
+- ROI capture coordinates
+- SSIM values
+- Test outcome and any failure messages
+
+---
+
+## 🚀 SmartScreen & Firewall Handling
+
+To ensure stable automated runs:
+
+- **SmartScreenBypass.cs** clicks “Run Anyway” in “Windows protected your PC”.
+- **FirewallRules.cs** pre-creates inbound/outbound rules via `netsh` to avoid popups.
+- If the firewall dialog still appears, **UI automation clicks “Allow”** automatically.
+
+---
+
+## 🧰 Requirements
+
+- **Windows 10/11 x64**
+- **.NET 8 SDK** (Desktop)
+- Dependencies:
+  ```
+  FlaUI.UIA3
+  Magick.NET-Q16-AnyCPU
+  Serilog
+  Serilog.Sinks.File
+  Serilog.Sinks.Console
+  ```
+
+---
+
+## ▶️ How to Run Locally
+
+```powershell
+# 1. Restore and build
+dotnet restore .\ToggleButtonAutomation\ToggleButtonAutomation.sln
+dotnet build   .\ToggleButtonAutomation\ToggleButtonAutomation.sln -c Release
+
+# 2. Run all tests
+dotnet test .\ToggleButtonAutomation\ToggleButtonTests\ToggleButtonTests.csproj -c Release
+```
+
+---
+
+## 🤖 Continuous Integration
+
+GitHub Actions workflow: `.github/workflows/release-pipeline.yaml`
+
+### Jobs
+| Job | Runner | Purpose |
+|------|--------|----------|
+| **Build** | `windows-latest` | Restores and builds the solution |
+| **ui_tests** | `self-hosted, Windows, X64` | Runs interactive UI tests, uploads reports |
+
+> ⚠️ Note: Hosted GitHub runners cannot run UI automation.  
+> A **self-hosted Windows runner** with a visible desktop session is required.
+
+---
+
+## 🧠 Evaluation Coverage
+
+✅ **Correctness** – verifies real visual change, not hard-coded references.  
+✅ **Code Quality** – modular structure with clear separation of concerns.  
+✅ **Error Reporting** – explicit, contextual failure messages.  
+✅ **Documentation** – detailed environment setup and execution guide.  
+
+---
+
+## 🧱 Known Limitations
+
+- Window size/position must remain stable during test run.  
+- SmartScreen and Firewall dialogs may appear based on Windows settings.  
+
+---
+
+**Author:** Yauheni Chiruk  
+**Tech Stack:** .NET 8, FlaUI, Magick.NET, Serilog  
+**License:** Internal Assessment Project
