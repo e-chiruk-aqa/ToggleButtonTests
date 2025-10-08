@@ -17,20 +17,22 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   CONFIGURATION: Release
 
+defaults:
+  run:
+    shell: powershell
+
 jobs:
   build:
-    name: Build
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Set DOTNET_INSTALL_DIR (user scope)
-        shell: pwsh
         run: |
           $dir = "$env:USERPROFILE\.dotnet"
           New-Item -ItemType Directory -Force -Path $dir | Out-Null
-          echo "DOTNET_INSTALL_DIR=$dir" >> $env:GITHUB_ENV
-          echo "$dir" >> $env:GITHUB_PATH
+          Add-Content -Path $env:GITHUB_ENV -Value "DOTNET_INSTALL_DIR=$dir"
+          Add-Content -Path $env:GITHUB_PATH -Value $dir
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -42,14 +44,10 @@ jobs:
           key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj','**/packages.lock.json') }}
           restore-keys: nuget-${{ runner.os }}-
 
-      - name: Restore
-        run: dotnet restore ./ToggleButtonAutomation/ToggleButtonAutomation.sln
-
-      - name: Build
-        run: dotnet build ./ToggleButtonAutomation/ToggleButtonAutomation.sln -c $env:CONFIGURATION --no-restore
+      - run: dotnet restore ./ToggleButtonAutomation/ToggleButtonAutomation.sln
+      - run: dotnet build   ./ToggleButtonAutomation/ToggleButtonAutomation.sln -c $env:CONFIGURATION --no-restore
 
   ui_tests:
-    name: UI tests (self-hosted Windows with desktop)
     runs-on: [ self-hosted, Windows, X64 ]
     timeout-minutes: 30
     env:
@@ -58,37 +56,30 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set DOTNET_INSTALL_DIR (user scope)
-        shell: pwsh
         run: |
           $dir = "$env:USERPROFILE\.dotnet"
           New-Item -ItemType Directory -Force -Path $dir | Out-Null
-          echo "DOTNET_INSTALL_DIR=$dir" >> $env:GITHUB_ENV
-          echo "$dir" >> $env:GITHUB_PATH
+          Add-Content -Path $env:GITHUB_ENV -Value "DOTNET_INSTALL_DIR=$dir"
+          Add-Content -Path $env:GITHUB_PATH -Value $dir
 
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      - name: dotnet --info
-        run: dotnet --info
+      - run: dotnet --info
 
-      - name: Restore
-        run: dotnet restore ./ToggleButtonAutomation/ToggleButtonAutomation.sln
-
-      - name: Build
-        run: dotnet build ./ToggleButtonAutomation/ToggleButtonAutomation.sln -c $env:CONFIGURATION --no-restore
+      - run: dotnet restore ./ToggleButtonAutomation/ToggleButtonAutomation.sln
+      - run: dotnet build   ./ToggleButtonAutomation/ToggleButtonAutomation.sln -c $env:CONFIGURATION --no-restore
 
       - name: Run UI tests
-        shell: pwsh
         run: |
           Write-Host "REGEN_BASELINES=$env:REGEN_BASELINES"
           dotnet test ./ToggleButtonAutomation/ToggleButtonTests/ToggleButtonTests.csproj `
             -c $env:CONFIGURATION --no-build `
             --logger "trx;LogFileName=ui-tests.trx"
 
-      - name: Upload reports
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
           name: ui-reports
           path: |
