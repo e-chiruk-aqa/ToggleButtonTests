@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Framework.Utils;
+using NUnit.Framework;
 using Serilog;
 using System;
 using System.Diagnostics;
@@ -22,6 +23,7 @@ namespace Framework
                 UseShellExecute = true,
                 WorkingDirectory = Path.GetDirectoryName(exePath)!
             };
+            FirewallRules.EnsureAllowFor(exePath, "ToggleButtonTests");
             Process = Process.Start(psi) ?? throw new AssertionException("Failed to start process");
             Log.Information("Started {Exe} pid={Pid}", exePath, Process.Id);
         }
